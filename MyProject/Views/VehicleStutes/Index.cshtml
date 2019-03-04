@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@*<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />*@
+<h2>Index</h2>
+<select id="Cutomarse" class="form-control">
+    <option value="0">Select Customar</option>
+</select>
+<select id="Vehicle" class="form-control">
+    <option value="0">Select Vehicle</option>
+</select>
+<button id="Refrish" class="btn btn-info" >Refrish</button>
+<table id="StatusTable" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Customar</th>
+            <th>VehiclesModel</th>
+            <th>VehiclesNumber</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+@*<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        function GetAllVehicles() {
+            $.getJSON('/VehicleStutes/getAllVehicles', { cus: $("#Cutomarse").val() }, function (data) {
+                $("#Vehicle").children('option:not(:first)').remove();
+                $.each(data, function (i, item) {
+                    var c = new Option(item.Number, item.Id);
+                    $(c).html(item.Number);
+                    $("#Vehicle").append(c);
+                })
+            });
+        }
+        GetAllVehicles();
+        $.getJSON('/VehicleStutes/getAllCutomarse', function (data) {
+            $.each(data, function (i, item) {
+                var c = new Option(item.Address, item.Id);
+                $(c).html(item.Address);
+                $("#Cutomarse").append(c);
+            })
+        });
+        setInterval(function () {
+            GetVehicleStutes()
+        }, 6000);
+        function GetVehicleStutes() {
+            var cus = $("#Cutomarse").val();
+            var ves = $("#Vehicle").val();
+            $.getJSON('/VehicleStutes/getVehicleStutes', { cus: cus, ves: ves }, function (result) {
+                $('#StatusTable tbody tr').remove();
+                $.each(result, function (i, item) {
+                    $('#StatusTable').append(
+
+                        '<tr><td>' + item.Address + '</td>' +
+                        '<td>' + item.Model + '</td>' +
+                        '<td>' + item.Number + '</td>' +
+                        '<td>' + item.Status + '</td></tr>'
+                    )
+                })
+            });
+        };
+        $('#Refrish').click(
+            function () {
+                GetVehicleStutes();
+            });
+        $("#Cutomarse").on('change', function () {
+            GetAllVehicles();
+        });
+    });
+</script>
